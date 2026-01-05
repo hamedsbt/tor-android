@@ -53,6 +53,8 @@ jobs:
         with:
           name: tor-android-build
           path: |
-            service/src/main/libs/armeabi-v7a/tor
-            service/build/outputs/aar/*.aar  # Or adjust based on output locations
+            tor-android-binary/src/main/libs/armeabi-v7a/*
+            tor-android-binary/build/outputs/aar/*.aar
+            external/lib/*
+            external/test/*
           retention-days: 5
