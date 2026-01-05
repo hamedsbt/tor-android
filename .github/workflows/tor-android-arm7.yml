@@ -1,4 +1,4 @@
-name: Build Tor Android
+name: Tor for Android armv7
 
 on:
   workflow_dispatch:
