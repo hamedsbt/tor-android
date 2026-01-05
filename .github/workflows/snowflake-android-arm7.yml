@@ -11,10 +11,10 @@ jobs:
       - name: Clone Snowflake repository
         run: git clone https://gitlab.torproject.org/tpo/anti-censorship/pluggable-transports/snowflake.git --recurse-submodules
 
-      - name: Set up older Go (1.22)
+      - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22.8'  # Use Go 1.22 to avoid the anet linkname restriction in Go 1.23+
+          go-version: '1.22.8'  # Stick with 1.22 to avoid linkname restrictions; flag added for safety
 
       - name: Install Android NDK
         run: |
@@ -36,7 +36,7 @@ jobs:
       - name: Build Snowflake client binary
         run: |
           cd snowflake/client
-          go build -ldflags="-s -w" -o snowflake-client
+          go build -ldflags="-checklinkname=0 -s -w" -o snowflake-client
           file snowflake-client  # Verify it's an ARMv7 Android binary
           ls -l snowflake-client
 
