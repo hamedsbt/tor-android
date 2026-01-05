@@ -45,9 +45,13 @@ jobs:
           -Pandroid.targetSdk=30 \
           -Pandroid.minSdk=16 \
           -PabiFilters=armeabi-v7a
-
-    - name: Upload ARM32 artifacts
+          
+    - name: Upload ARM32 Tor binary + AAR
       uses: actions/upload-artifact@v4
       with:
         name: tor-android-arm32
-        path: tor-android/tor-android/build/outputs/aar/*.aar
+        path: |
+          tor-android-binary/build/intermediates/cmake/debug/obj/armeabi-v7a/tor
+          tor-android/build/outputs/aar/*.aar
+        if-no-files-found: error
+
