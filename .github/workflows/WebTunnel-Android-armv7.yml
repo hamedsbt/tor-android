@@ -1,0 +1,52 @@
+name: Build WebTunnel for Android armv7
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '^1.22'  # Recent version; WebTunnel works with 1.20+
+
+      - name: Install Android NDK
+        run: |
+          sudo apt update
+          sudo apt install -y unzip
+          wget https://dl.google.com/android/repository/android-ndk-r25c-linux.zip
+          unzip android-ndk-r25c-linux.zip -d $HOME
+          echo "NDK_HOME=$HOME/android-ndk-r25c" >> $GITHUB_ENV
+
+      - name: Set up armv7 toolchain
+        run: |
+          $NDK_HOME/build/tools/make-standalone-toolchain.sh --arch=arm --api=30 --install-dir=$HOME/arm-toolchain
+          echo "PATH=$HOME/arm-toolchain/bin:$PATH" >> $GITHUB_ENV
+          echo "CC=arm-linux-androideabi-clang" >> $GITHUB_ENV
+          echo "CXX=arm-linux-androideabi-clang++" >> $GITHUB_ENV
+          echo "GOARCH=arm" >> $GITHUB_ENV
+          echo "GOARM=7" >> $GITHUB_ENV
+          echo "CGO_ENABLED=1" >> $GITHUB_ENV
+
+      - name: Build WebTunnel client binary
+        run: |
+          cd client
+          go build -ldflags="-s -w" -o webtunnel-client
+          ls -l webtunnel-client  # Verify size (~ few MB)
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: webtunnel-android-armv7
+          path: client/webtunnel-client
+          retention-days: 10
