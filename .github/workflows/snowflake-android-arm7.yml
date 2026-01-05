@@ -1,4 +1,4 @@
-name: Build Snowflake Client for Android armv7
+name: Snowflake Client for Android armv7
 
 on:
   workflow_dispatch:
