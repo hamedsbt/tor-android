@@ -8,8 +8,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Clone WebTunnel repository
+        run: git clone https://gitlab.torproject.org/tpo/anti-censorship/pluggable-transports/webtunnel.git
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -35,7 +35,7 @@ jobs:
 
       - name: Build WebTunnel client binary
         run: |
-          cd client
+          cd webtunnel/main/client
           go build -ldflags="-s -w" -o webtunnel-client
           file webtunnel-client  # Verify it's an ARMv7 Android binary
           ls -l webtunnel-client
@@ -44,5 +44,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: webtunnel-android-armv7
-          path: client/webtunnel-client
+          path: webtunnel/main/client/webtunnel-client
           retention-days: 10
