@@ -14,31 +14,31 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '^1.22'  # Recent version; WebTunnel works with 1.20+
+          go-version: '^1.22'
 
       - name: Install Android NDK
         run: |
-          sudo apt update
-          sudo apt install -y unzip
-          wget https://dl.google.com/android/repository/android-ndk-r25c-linux.zip
-          unzip android-ndk-r25c-linux.zip -d $HOME
-          echo "NDK_HOME=$HOME/android-ndk-r25c" >> $GITHUB_ENV
+          wget https://dl.google.com/android/repository/android-ndk-r26d-linux.zip
+          unzip android-ndk-r26d-linux.zip -d $HOME
+          echo "NDK_HOME=$HOME/android-ndk-r26d" >> $GITHUB_ENV
 
-      - name: Set up armv7 toolchain
+      - name: Set cross-compile environment for armeabi-v7a
         run: |
-          $NDK_HOME/build/tools/make-standalone-toolchain.sh --arch=arm --api=30 --install-dir=$HOME/arm-toolchain
-          echo "PATH=$HOME/arm-toolchain/bin:$PATH" >> $GITHUB_ENV
-          echo "CC=arm-linux-androideabi-clang" >> $GITHUB_ENV
-          echo "CXX=arm-linux-androideabi-clang++" >> $GITHUB_ENV
+          TOOLCHAIN=$NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64
+          echo "PATH=$TOOLCHAIN/bin:$PATH" >> $GITHUB_ENV
+          echo "CC=armv7a-linux-androideabi30-clang" >> $GITHUB_ENV
+          echo "CXX=armv7a-linux-androideabi30-clang++" >> $GITHUB_ENV
+          echo "CGO_ENABLED=1" >> $GITHUB_ENV
+          echo "GOOS=android" >> $GITHUB_ENV
           echo "GOARCH=arm" >> $GITHUB_ENV
           echo "GOARM=7" >> $GITHUB_ENV
-          echo "CGO_ENABLED=1" >> $GITHUB_ENV
 
       - name: Build WebTunnel client binary
         run: |
           cd client
           go build -ldflags="-s -w" -o webtunnel-client
-          ls -l webtunnel-client  # Verify size (~ few MB)
+          file webtunnel-client  # Verify it's an ARMv7 Android binary
+          ls -l webtunnel-client
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
